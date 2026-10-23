@@ -14,6 +14,18 @@ This scaffold prepares for a local workflow inventory. It contains package struc
 example configurations, and a synthetic fixture, but no collectors or generators.
 Dataset collection requires separate approval. No datasets or ML libraries are included.
 
+## Research objectives
+
+Builder aims to generate workflows that are syntactically valid, structurally correct,
+semantically aligned with requirements, and suitable for execution. Planned work includes
+dataset profiling, workflow similarity and duplicate detection, targeted collection and
+normalization, future model experiments, and generation evaluation.
+
+Evaluation will consider syntax and schema validity, node and parameter correctness,
+graph structure and data flow, semantic alignment, performance across workflow
+complexities, and execution success where an evaluation environment supports it.
+Training and fine-tuning remain deferred until the model experimentation phase.
+
 ## Development setup
 
 Use Python 3.11 or newer. From the repository root on Windows PowerShell:
