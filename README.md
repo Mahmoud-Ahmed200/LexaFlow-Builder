@@ -10,8 +10,9 @@ hypotheses; no approach has been shown superior by this project.
 
 ## Current scope
 
-This scaffold prepares for a local workflow inventory. It contains package structure,
-example configurations, and a synthetic fixture, but no collectors or generators.
+Milestone 1 provides a static local workflow inventory with structural validation,
+original-byte duplicate detection, and reproducible reports. No collectors or generators
+are implemented.
 Dataset collection requires separate approval. No datasets or ML libraries are included.
 
 ## Research objectives
@@ -66,8 +67,23 @@ The synthetic fixture in `tests/fixtures/` is intentionally tracked.
 Select the target n8n version, verify source identities and licenses, review the node
 catalog, and define evaluation and split policies before the next phase. YAML files
 are examples only: no configuration loader or n8n compatibility validation exists yet.
-The smoke tests establish package installation and fixture readability, not n8n
-importability, execution success, or behavioral correctness.
+The inventory checks JSON and structural shape, not n8n importability, execution
+success, or behavioral correctness.
+
+## Local inventory
+
+```powershell
+.\.venv\Scripts\python.exe -m lexaflow.builder.data.inventory --input tests/fixtures --output reports/inventory-demo --catalog configs/inventory-catalog.json
+```
+
+Outputs are `inventory.jsonl`, `summary.json`, and `report.md`. The optional JSON
+role catalog configures type recognition; the default read limit is 10 MB per file.
+Detailed `inventory.jsonl` reports are potentially sensitive: workflow names, node
+names, paths, and connection labels can contain personal information. Review and
+redact a copy before sharing; JSON output is not anonymized.
+See [scope, schema, metrics, and limitations](docs/inventory.md) and the
+[Milestone 1 report](docs/experiments/milestone-1.md). Existing YAML files remain
+planning examples; the inventory CLI loads the JSON role catalog.
 
 See [project overview](docs/project-overview.md), [research plan](docs/research-plan.md),
 and [architecture](docs/architecture.md). Follow the root `AGENTS.md` instructions.
