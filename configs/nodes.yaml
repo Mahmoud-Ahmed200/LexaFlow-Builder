@@ -1,0 +1,15 @@
+# Candidate initial catalog, awaiting target-version compatibility review.
+schema_version: 1
+target_n8n_version: null # TODO: select exact n8n version.
+status: provisional
+nodes:
+  - type: n8n-nodes-base.manualTrigger
+    type_version: null # TODO: verify against the selected n8n release.
+    role: trigger
+  - type: n8n-nodes-base.set
+    type_version: null
+    role: transform
+  - type: n8n-nodes-base.httpRequest
+    type_version: null
+    role: action
+# Entries express intended initial coverage, not verified generation support.

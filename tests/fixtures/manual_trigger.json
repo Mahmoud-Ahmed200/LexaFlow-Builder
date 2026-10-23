@@ -1,0 +1,16 @@
+{
+  "name": "Synthetic manual trigger",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    }
+  ],
+  "connections": {},
+  "active": false,
+  "settings": {}
+}
