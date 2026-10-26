@@ -2,9 +2,14 @@
 
 ## Reference architecture, service contracts, data model, workflows, evaluation paths and deployment
 
+Current repository layout (26 October 2026): `src/builder/{reader,validator,inventory}.py`
+implements the static inventory only. Tests are flat under `tests/`; consolidated
+research plans, inventory contract and milestone evidence are in [milestones.md](milestones.md).
+The components below describe future candidate architecture, not current packages.
+
 **Version:** 1.0 — candidate architecture, to be validated through experiments  
 **Date:** 23 October 2026  
-**Companion document:** [`LexaFlow_Builder_Research_and_Implementation_Plan.md`](LexaFlow_Builder_Research_and_Implementation_Plan.md)  
+**Companion document:** [Research plan and milestones](milestones.md)  
 **Objective:** Natural-language requirement → readable, correctly configured, n8n-importable, independently testable explicit automation workflow using an 8B–9B open-weight language model.  
 **Platform principle:** n8n is a **pluggable backend for compilation and controlled execution**, not the target of the scientific contribution.
 

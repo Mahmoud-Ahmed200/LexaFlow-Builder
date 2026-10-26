@@ -1,3 +1,53 @@
+# LexaFlow milestones and research roadmap
+
+Repository layout updated on 26 October 2026 at user request. The public Python package is now `builder`; the distribution name remains `lexaflow`. Reinstall editable packages after migrating. The old `lexaflow.builder.data` import and CLI paths are no longer supported. Inventory schema and algorithms are unchanged. Historical plans below remain research proposals, not findings.
+
+
+---
+
+## Project overview
+
+# LexaFlow project overview
+
+LexaFlow is a university graduation research project investigating LLM-based
+generation, testing, execution, diagnosis, and repair of n8n workflows.
+
+Builder converts natural-language requirements into executable workflows. Tester
+will investigate hierarchical tests for nodes, blocks, and complete workflows.
+Repairer will investigate failure diagnosis and repair. Only Builder is currently
+in scope; the other modules are reserved directories.
+
+Builder research concerns approximately 8B–9B parameter models and compares direct
+JSON generation, compact intermediate representations with deterministic compilation,
+and hierarchical planning, node selection, graph construction, and configuration.
+Dataset composition, structural complexity, node frequency, and training strategies
+are experimental factors. No comparative results are established.
+
+The current phase is dataset preparation, starting with a local workflow inventory.
+Future inventory work includes provenance preservation, parsing, graph validation,
+exact and near deduplication, sensitive-data sanitization, coverage analysis, and
+instruction–workflow pairing. This scaffold does not implement those features.
+
+Python 3.11+, pytest, Ruff, Git, and YAML/JSON form the initial toolchain. PyTorch,
+Transformers, PEFT, and isolated Docker-based n8n execution are deferred. The target
+n8n version remains undecided.
+
+Raw workflows must remain unchanged and be treated as untrusted input. Parsing must
+not execute embedded code or expressions. Preserve provenance and licensing records,
+protect secrets and personal information, and retain semantic names and references.
+JSON validity, graph validity, importability, execution, and behavioral correctness
+are separate claims. Prevent related variants leaking across splits, maintain an
+independently verified final benchmark, and label description origins explicitly.
+
+Experiments must record configurations, seeds, versions, sample sizes, exclusions,
+limitations, and failures. Do not fabricate findings or equate reference JSON matches
+with correctness. Original research and architecture documents are still awaited.
+
+
+---
+
+## Research plan
+
 # LexaFlow Builder Module
 ## Research and Implementation Plan: Natural Language to Executable Visual Workflows
 
@@ -103,7 +153,7 @@ Node-count ranges are provisional experimental strata, **not** claims about the 
 | **ComfyFlow** (Xu et al., Findings ACL 2026; `2026.findings-acl.140.pdf`) | Fine-grained format, node, graph and parameter metrics; SFT/RL experiments on ComfyUI. | Use multi-level diagnostics; its ComfyUI results are not n8n results. |
 | **Knowledge-Centric Agents for Workflow Generation in ComfyUI** (Li et al., 2026; `2607.15845v2.pdf`) | Workflow knowledge inversion, strategy → skeleton → configuration, hierarchical training. | A strong staged-generation prior; test transfer rather than assume superiority. |
 | **Chat2Workflow** (Zhong et al., 2026; external) | Executable visual workflows and feedback-driven generation for Dify/Coze. | End-to-end generation plus correction alone is not a novel claim. |
-| **n8n Workflow SDK** (official project) | Programmatic TypeScript construction, flow control and validation. | Check whether SDK code is a competitive output representation; lock SDK and n8n versions. |
+| **n8n Workflow SDK** (official project) | Programmatic TypeScript construction, flow control and validation. | Check whether SDK code is a competitive output representation; lock SDK and n8n versions. |  
 
 **Evidence boundary:** the papers above do not demonstrate that an IR+RAG+QLoRA system is optimal for n8n. That combination is a **candidate whose value must be tested**. The academic deliverable is strengthened by negative findings when faithfully measured.
 
@@ -656,3 +706,944 @@ This claim is defensible whether the proposed method wins or loses, provided the
 11. Hugging Face SFT Trainer: https://huggingface.co/docs/trl/en/sft_trainer
 
 **Version/date caution:** online projects and software can change after 23 October 2026. Record exact repository commits and package versions before execution. Commercial plan prices and included compute units must be checked in the account's checkout UI. This document makes no guarantee of a Colab GPU, fixed compute units, or demonstrated LexaFlow model performance.
+
+
+---
+
+## Implementation roadmap
+
+# LexaFlow Builder — Step-by-Step Implementation & Research Plan
+
+Goal: Build an AI system that takes a user's natural-language request and generates a correct, executable, well-organized workflow using an 8B–9B language model, with n8n as the execution environment.
+
+We will develop multiple approaches, compare them scientifically, and select the strongest based on experimental results rather than assumptions.
+
+The order below is designed to minimize wasted work, especially with your Colab Pro budget.
+
+# Phase 1 — Define the problem and prepare the environment
+
+### 1. Define exactly what the builder must support
+
+- Define the input: natural-language workflow requirements.
+- Define the output: an importable n8n workflow JSON.
+- Specify supported workflow features: triggers, sequential actions, conditions, branches, loops, and data transformations.
+- Define what counts as a correct workflow.
+- Separate workflow correctness from visual quality.
+
+Output: Builder requirements and scope document.
+
+### 2. Choose the initial supported n8n nodes
+
+- Start with approximately 10–20 node types.
+- Include common triggers, HTTP requests, conditions, transformations, and integrations.
+- Identify each node's supported operations and required parameters.
+- Expand support later.
+
+Output: Initial node and operation catalog.
+
+### 3. Set up the development environment
+
+- Install a fixed version of n8n locally using Docker.
+- Prepare Python for datasets, models, and experiments.
+- Prepare Google Colab Pro for training.
+- Configure version control and experiment tracking.
+- Create an isolated testing environment.
+
+Output: Reproducible development environment.
+
+### 4. Create manually verified example workflows
+
+- Construct 15–20 workflows in n8n.
+- Include simple, intermediate, and relatively complex scenarios.
+- Export their JSON files.
+- Verify that they execute correctly with controlled inputs.
+- Document their expected behavior.
+
+Output: A small collection of trusted workflow examples.
+
+### 5. Implement an initial workflow evaluation tool
+
+Build a script that can:
+
+- Parse workflow JSON.
+- Check node and connection validity.
+- Import workflows into n8n.
+- Execute workflows using test fixtures.
+- Capture errors and outputs.
+- Determine whether the expected behavior occurred.
+
+This must exist before serious model training so we can measure progress objectively.
+
+Output: Initial evaluation harness.
+
+# Phase 2 — Dataset collection and preparation
+
+### 6. Collect workflow datasets
+
+Investigate and collect suitable workflows from:
+
+- Official n8n templates.
+- Public GitHub repositories.
+- Existing workflow-generation datasets.
+- Research datasets, including WorkflowLLM and Flow-Bench, where representations can be adapted.
+- Additional manually constructed examples.
+
+Track dataset provenance and permitted use.
+
+Output: Raw workflow dataset.
+
+### 7. Clean and normalize the dataset
+
+- Remove invalid JSON.
+- Detect broken node references.
+- Handle unsupported nodes.
+- Remove credentials and sensitive information.
+- Standardize non-semantic fields.
+- Record missing runtime dependencies.
+- Deduplicate identical and near-identical workflows.
+
+Output: Clean workflow dataset.
+
+### 8. Analyze dataset distribution
+
+Calculate:
+
+- Frequency of every node and operation.
+- Workflow lengths.
+- Common node combinations.
+- Branching and loop frequency.
+- Graph patterns.
+- Frequency of rare operations.
+
+Research purpose: Understand dataset coverage and discover whether some capabilities are insufficiently represented.
+
+Output: Dataset analysis report.
+
+### 9. Generate natural-language descriptions
+
+For each suitable workflow:
+
+- Use its original description where available.
+- Generate additional descriptions using a stronger LLM if necessary.
+- Check whether the descriptions accurately represent the workflow.
+- Human-review important examples.
+- Record ambiguities and unsupported assumptions.
+
+Create training pairs:
+
+\\[ \text{Natural Language} \rightarrow \text{Workflow} \\]
+
+Output: Paired natural-language/workflow dataset.
+
+### 10. Prepare training and testing splits
+
+Create separate datasets for:
+
+- Training.
+- Validation.
+- Final testing.
+- Unseen combinations.
+- Rare nodes and operations.
+- Increasing workflow complexity.
+
+Group similar workflows before splitting to prevent leakage. Perform data augmentation only after the split.
+
+Output: Reproducible dataset splits.
+
+# Phase 3 — Investigate different workflow representations
+
+This is one of the most important research phases.
+
+### 11. Approach A — Direct JSON representation
+
+The language model generates the n8n workflow JSON directly.
+
+Natural-language request
+
+8B–9B LLM
+
+n8n Workflow JSON
+
+Tasks:
+
+- Prepare description-to-JSON training records.
+- Normalize JSON fields.
+- Define prompts and output constraints.
+- Implement JSON parsing and validation.
+
+Research purpose: Establish the simplest generation approach.
+
+### 12. Approach B — Intermediate representation (IR)
+
+Instead of generating n8n JSON directly, the model generates a simpler logical graph.
+
+Natural-language request
+
+8B–9B LLM
+
+Compact workflow graph
+
+Compiler
+
+n8n Workflow JSON
+
+Tasks:
+
+- Design a compact workflow representation.
+- Represent nodes, operations, connections, branches, and parameter bindings.
+- Convert existing workflows into this representation.
+- Build an IR-to-n8n compiler.
+- Validate generated outputs.
+
+Research purpose: Determine whether reducing output complexity improves model performance.
+
+### 13. Approach C — Hierarchical workflow generation
+
+Separate workflow creation into several reasoning tasks.
+
+Natural-language request
+
+Generate workflow plan
+
+Select nodes and operations
+
+Generate graph connections
+
+Configure node parameters
+
+Generate executable workflow
+
+Tasks:
+
+- Define intermediate planning representations.
+- Generate training examples for each stage.
+- Implement staged generation with one model.
+- Validate outputs between stages.
+
+Research purpose: Investigate whether decomposing generation improves correctness for complex workflows.
+
+### 14. Investigate SDK-based generation as another representation
+
+- Study n8n's Workflow SDK.
+- Test whether an LLM can generate SDK code.
+- Convert the generated code to n8n workflows.
+- Compare against JSON and IR generation.
+
+This is optional if the SDK is unsuitable for your supported nodes or time budget.
+
+### 15. Compare output representations
+
+| Comparison                  | Main question                                                      |
+| --------------------------- | ------------------------------------------------------------------ |
+| Direct JSON vs IR           | Is a compact representation easier for a small LLM?                |
+| Direct JSON vs hierarchical | Does task decomposition improve generation?                        |
+| IR vs hierarchical IR       | Is explicit planning useful beyond simplifying the representation? |
+| IR vs SDK                   | Which gives better correctness with less engineering overhead?     |
+
+Important: These experiments can initially use untuned models. Do not fine-tune every approach before learning which representations are promising.
+
+# Phase 4 — Model selection and baseline experiments
+
+### 16. Select candidate 8B–9B models
+
+Start with:
+
+- Qwen3-8B.
+- Qwen3.5-9B.
+- Optionally Llama-3.1-8B-Instruct as a literature-connected baseline.
+
+### 17. Evaluate models without fine-tuning
+
+For each candidate, test:
+
+- Zero-shot generation.
+- Few-shot generation.
+- Structured output generation.
+- Direct JSON and IR generation.
+
+Use the same small development benchmark.
+
+Output: Baseline model comparison.
+
+### 18. Select one primary model
+
+Compare:
+
+- Correctness.
+- Structured-output reliability.
+- Inference cost.
+- GPU memory requirements.
+- Model and fine-tuning ecosystem compatibility.
+
+Choose one model for the main training experiments, with an optional second model for replication.
+
+Output: Primary model selection.
+
+# Phase 5 — Fine-tuning experiments
+
+### 19. Prepare Colab Pro training
+
+- Install compatible training libraries.
+- Configure model quantization.
+- Prepare LoRA/QLoRA adapters.
+- Test maximum feasible sequence length.
+- Implement checkpoint saving and recovery.
+- Run a short training smoke test.
+
+Colab Pro doesn't guarantee a particular GPU or uninterrupted runtime. Begin with a small experiment before committing the entire training dataset.
+
+### 20. Fine-tune using direct JSON
+
+Train:
+
+\\[ \text{NL} \rightarrow \text{n8n JSON} \\]
+
+Evaluate the result against the untuned direct-generation baseline.
+
+Output: Direct-JSON SFT model.
+
+### 21. Fine-tune using intermediate representation
+
+Train:
+
+\\[ \text{NL} \rightarrow \text{Workflow IR} \\]
+
+Use the same base model and comparable training budget.
+
+Output: IR SFT model.
+
+### 22. Compare the fine-tuned approaches
+
+Experiment E1 — Effect of representation and fine-tuning
+
+| Model condition  | Output        |
+| ---------------- | ------------- |
+| Base 8B–9B       | Direct JSON   |
+| Fine-tuned 8B–9B | Direct JSON   |
+| Base 8B–9B       | IR + compiler |
+| Fine-tuned 8B–9B | IR + compiler |
+
+Measure actual workflow correctness, not merely similarity to a reference JSON file.
+
+Research question: Does an intermediate representation help an 8B–9B model synthesize more correct workflows?
+
+### 23. Investigate hierarchical fine-tuning
+
+If earlier results justify it:
+
+- Train the model on planning tasks.
+- Train graph-generation examples.
+- Train parameter-filling examples.
+- Combine them into a staged pipeline.
+
+Compare against end-to-end IR fine-tuning with a matched data and training budget.
+
+Research question: Does hierarchical supervision improve generalization, particularly on more complex workflow structures?
+
+# Phase 6 — Knowledge augmentation and dataset experiments
+
+### 24. Approach D — Retrieval-augmented generation (RAG)
+
+Build a knowledge base containing:
+
+- Node documentation.
+- Available operations.
+- Required parameters.
+- Supported node versions.
+- Validated workflow examples.
+
+Retrieve relevant knowledge for each user request before generation.
+
+### 25. Compare generation with and without RAG
+
+Experiment E2 — Effect of knowledge retrieval
+
+| Approach               | Retrieval |
+| ---------------------- | --------- |
+| Base model             | No        |
+| Base model + RAG       | Yes       |
+| Fine-tuned model       | No        |
+| Fine-tuned model + RAG | Yes       |
+
+Use the same chosen output representation and evaluation tasks.
+
+Measure:
+
+- Correct node selection.
+- Hallucinated operations.
+- Parameter correctness.
+- Execution success.
+- Additional token and inference costs.
+
+Research question: Does retrieval help the model handle node documentation and uncommon operations?
+
+### 26. Approach E — Dataset distribution improvement
+
+Create experimental training variations:
+
+- D1: Original dataset distribution.
+- D2: Stratified or balanced sampling.
+- D3: Targeted augmentation of rare nodes and difficult graph patterns.
+
+Keep training budgets comparable.
+
+### 27. Compare the dataset strategies
+
+Experiment E3 — Effect of dataset composition
+
+Train the same model using D1, D2, and D3.
+
+Measure:
+
+- Overall correctness.
+- Performance on rare nodes.
+- Performance on unseen combinations.
+- Performance by graph complexity.
+- Any regression on common workflows.
+
+Research question: Does targeted dataset augmentation improve generalization more than simply using the original data distribution?
+
+# Phase 7 — Validation, correction, and presentation
+
+### 28. Build the validation pipeline
+
+Validate:
+
+- Generated representation syntax.
+- Graph connections.
+- Node types and versions.
+- Required parameters.
+- Expression dependencies.
+- n8n import compatibility.
+
+Return structured errors rather than only a generic failure message.
+
+### 29. Approach F — Validation-guided correction
+
+Allow the model to receive validation errors and correct its generated workflow.
+
+Compare:
+
+- No correction.
+- Whole-workflow regeneration.
+- Selective correction of invalid components.
+
+Limit the number of attempts to make results comparable.
+
+### 30. Compare correction strategies
+
+Experiment E4 — Effect of validation feedback
+
+Measure:
+
+- First-pass success.
+- Success after correction.
+- Number of attempts.
+- Additional compute cost.
+- Regressions introduced by correction.
+
+Research question: Can structured validation feedback improve workflow generation efficiently?
+
+### 31. Build workflow visualization and layout
+
+- Apply a deterministic graph layout algorithm.
+- Generate readable node names.
+- Organize branches.
+- Avoid unnecessary overlaps.
+- Add documentation or sticky notes where helpful.
+- Export the visually arranged n8n JSON.
+
+Treat visual layout quality separately from functional correctness.
+
+### 32. Integrate the selected builder approaches
+
+After comparing the alternatives, combine the techniques that demonstrate useful improvements.
+
+For example, the final approach might be:
+
+User natural language
+
+Node documentation retrieval
+
+Fine-tuned 8B–9B model
+
+Intermediate workflow representation
+
+Compiler and validator
+
+Visual layout
+
+Importable n8n workflow
+
+This is only a candidate. It should not become the final architecture until the experiments support its components.
+
+# Phase 8 — Final scientific evaluation
+
+### 33. Build the final benchmark
+
+Expand the development benchmark into an independently verified test suite covering:
+
+- Basic workflows.
+- Conditional workflows.
+- Workflows with multiple branches.
+- Complex data transformations.
+- Unseen combinations.
+- Rare operations.
+- Longer workflows.
+
+Keep this test set untouched during model and architecture selection.
+
+### 34. Run final comparisons
+
+Compare the strongest variants of:
+
+| Experiment | Comparison                               |
+| ---------- | ---------------------------------------- |
+| E1         | Direct JSON vs IR vs hierarchical        |
+| E2         | Untuned vs fine-tuned model              |
+| E3         | With vs without RAG                      |
+| E4         | Original vs balanced vs targeted dataset |
+| E5         | With vs without validation correction    |
+| E6         | Performance across complexity levels     |
+
+Control decoding settings, evaluation inputs, and compute budgets where possible. Report additional inference attempts and retrieval costs rather than treating them as free improvements.
+
+### 35. Evaluate scientific metrics
+
+Measure:
+
+| Metric                   | Meaning                                             |
+| ------------------------ | --------------------------------------------------- |
+| JSON/IR validity         | Is the generated representation valid?              |
+| n8n import success       | Can n8n accept the result?                          |
+| Node selection accuracy  | Were the appropriate components chosen?             |
+| Graph correctness        | Are dependencies and branches correct?              |
+| Parameter correctness    | Are operations configured correctly?                |
+| Requirement satisfaction | Does it implement what was requested?               |
+| Execution success        | Does it produce the correct outcome?                |
+| Generalization           | Does it work on unseen structures and combinations? |
+| Cost and latency         | How expensive is generation?                        |
+
+Report results by workflow complexity and use confidence intervals or repeated runs where appropriate.
+
+### 36. Perform error analysis
+
+For each failed workflow, identify its main failure category:
+
+- Wrong node.
+- Missing node.
+- Incorrect connection.
+- Wrong operation.
+- Invalid parameter.
+- Incorrect expression.
+- Missing requested behavior.
+- Unsupported or ambiguous requirement.
+- Execution-environment failure.
+
+Analyze which methods reduce which errors.
+
+This is important because an approach may improve syntax validity while leaving semantic correctness unchanged.
+
+### 37. Write the scientific contribution
+
+Your final contribution should be determined by the actual experimental findings.
+
+Possible conclusions include:
+
+- Intermediate representations improve workflow correctness for small models.
+- Retrieval reduces hallucinated node operations.
+- Hierarchical supervision improves complex graph generation.
+- Targeted data augmentation improves rare-node performance.
+- Some techniques increase cost without meaningful accuracy gains.
+
+Negative results are also scientifically useful when experiments are well controlled.
+
+### 38. Deliver the final builder
+
+Produce:
+
+- Trained model adapters.
+- Workflow datasets and processing scripts.
+- Selected workflow-generation pipeline.
+- Compiler and validation components.
+- n8n integration.
+- Visual layout module.
+- Reproducible experiment code.
+- Benchmark and final results.
+- Documentation explaining limitations.
+
+## Overall research flow
+
+1\. Data + n8n environment + evaluation benchmark
+
+2\. Compare output representations
+
+Direct JSON vs IR vs hierarchical / SDK
+
+3\. Compare base and fine-tuned models
+
+4\. Test improvement strategies
+
+RAG · dataset coverage · validation feedback
+
+5\. Select strongest experimentally supported combination
+
+6\. Final evaluation + scientific analysis + Builder prototype
+
+## What I would prioritize with your Colab Pro budget
+
+Not every experiment requires GPU training. Dataset preparation, IR/compiler development, validation, and much of the execution benchmarking can run locally.
+
+I would use this priority order:
+
+1. First: Dataset, benchmark, n8n execution harness, IR and compiler.
+2. Second: Untuned-model comparisons for JSON vs IR, plus few-shot and RAG baselines.
+3. Third: One primary 8B–9B model with QLoRA, comparing direct JSON and IR under comparable training budgets.
+4. Fourth: RAG and dataset-distribution ablations using the strongest trained representation.
+5. Fifth: Hierarchical training and validation-guided correction, if earlier error analysis supports them.
+6. Last: Reinforcement learning or multi-agent generation only if there is a clear remaining research question and sufficient compute.
+
+The key is that we're not just developing a workflow builder. We're studying what makes smaller language models better at generating executable workflows.
+
+I'd begin with Steps 1–5, especially constructing a small, independently verified benchmark and an n8n execution harness. That foundation will make every later architectural comparison scientifically meaningful.
+
+---
+
+## Inventory contract
+
+# Milestone 1: scope and inventory contract
+
+The target platform is n8n; the target version is **unresolved**. This milestone is
+static dataset infrastructure, not an execution evaluator or training pipeline.
+
+Proposed initial nodes: Manual Trigger, Set, HTTP Request, IF, and Sticky Note
+(annotation only). The former `nodes.yaml` example is archived below;
+`configs/inventory-catalog.json` is the dependency-free CLI role mapping for this
+milestone, including proposed control and annotation entries. Neither catalog
+establishes version compatibility. Unknown types are counted and warned about, never
+rejected solely for being unknown. Trigger detection uses explicit catalog roles,
+not naming guesses. Without a catalog, trigger/unknown counts are unavailable (empty).
+
+Static analysis accepts sequences, fanout, multiple outputs, multiple inputs, cycles,
+and non-main connection channels. Runtime loop behavior, merge semantics, port bounds,
+operations, parameter schemas, expression bindings, credentials, external services,
+import, execution, IR/compiler, generation, and training remain deferred.
+
+JSON validity means successful strict JSON decoding (nonstandard constants rejected).
+Structural validity means the implemented shape and reference checks have no errors.
+Importability requires acceptance by a selected n8n version. Execution success requires
+a recorded controlled run without runtime failure. Behavioral correctness requires an
+independent expected-behavior oracle. These are separate claims.
+
+## Record schema v1
+
+`inventory.jsonl` contains one object per discovered JSON file, ordered by path.
+Unreadable directories additionally produce diagnostic records with status
+`directory_error`, excluded from `files_scanned`; their contents cannot be enumerated.
+
+- `schema_version`: 1; `source_path`: path relative to selected root.
+- `sha256`: original-byte hash, null for inaccessible, unsafe, or oversized files.
+- `parsing_status`: parsed, invalid_json, read_error, unsafe_path, too_large,
+  or directory_error.
+- `workflow_name`: string or null. `metadata`: null, reserved for externally reviewed
+  descriptive metadata. No descriptions or arbitrary metadata are copied from input.
+- `provenance`: source_id, source_url, license, revision, retrieved_at, n8n_version;
+  all null until explicitly supplied by future collectors.
+- `node_count`: array length or null; `node_types`: type-to-count mapping;
+  `node_versions`: list of {type, typeVersion, count}. Invalid versions use null.
+- `unique_ids`, `unique_names`: true only when all nodes have valid, nonempty,
+  unique string identifiers; false when valid identifiers contain duplicates;
+  null when identifiers/nodes are missing or invalid and no duplicate is established.
+  Empty node arrays yield true; unavailable node arrays yield null. Missing/invalid
+  fields retain their separate errors, and duplicates are diagnosed independently.
+- `disabled_count`, `sticky_note_count`: distinct indicators, not executable-step counts.
+- `trigger_types`, `unknown_types`: type frequencies under the optional role catalog.
+- `connection_count`: count of well-shaped edge entries, including broken references.
+- `branches`: {source, type, output, size}; preserves every slot including empty and
+  null slots (size null). `edges`: {source, source_type, output, destination,
+  destination_type, input}; preserves indices and channels of well-shaped edges.
+- `empty_workflow`: true for an explicitly empty nodes array; warning, not proof of
+  invalid import. Missing nodes and connections are errors under this inventory profile.
+- `errors`, `warnings`: diagnostic codes without parameter values or exception text.
+- `raw_duplicate_group`: sha256-prefixed identifier only for repeated original hashes.
+- `validation_status`: not_checked, errors, warnings, structurally_valid.
+- `limitations`: explicit checks not performed.
+
+Each node is checked for nonempty string id/name/type, positive numeric typeVersion,
+object parameters, and a two-number position. These are the local inventory profile,
+not a frozen version-specific n8n schema. Duplicate names make references ambiguous.
+No acyclicity rule is imposed. Null output buckets are allowed by n8n's interface.
+Reference: [official n8n interfaces](https://github.com/n8n-io/n8n/blob/master/packages/workflow/src/interfaces.ts),
+consulted during implementation; this moving reference does not pin compatibility.
+
+## Metrics and reproducibility
+
+`summary.json` records tool version, full effective catalog, size limit, unresolved n8n
+version, and raw-hash duplicate strategy. No timestamps or absolute input paths affect
+output. All three files are UTF-8 with stable ordering. All inspected nodes, including
+disabled and annotation nodes, contribute to type and node counts. Parsed workflows
+with structural errors still contribute inspectable data. Unparsed inputs do not.
+
+Distinct original files counts distinct available byte hashes, not workflow semantics.
+Exact duplicate groups contain only hashes seen at least twice. Differently serialized
+JSON is not an exact duplicate. `duplicate_key` is the future strategy extension point;
+canonical and near-duplicate strategies raise NotImplementedError.
+
+Node-count distribution counts workflows per array length. Version distribution counts
+node instances per type/version. Connections count well-shaped entries, not unique
+node pairs. Output slots count branch positions, nonempty slots count those with
+entries, and fanout slots count buckets with more than one entry. These are static
+indicators, not path counts or execution complexity. Discovery errors and unhashed
+records explicitly bound completeness.
+
+## Safety and usage
+
+```powershell
+.\.venv\Scripts\python.exe -m builder.inventory --input tests/fixtures --output reports/inventory-demo --catalog configs/inventory-catalog.json
+```
+
+Optional `--max-bytes` defaults to 10000000. Catalog is an optional JSON object mapping
+node types to roles; role `trigger` identifies triggers. Output directories must be
+disjoint from input, preventing reports being rescanned or source files overwritten.
+Existing output files are replaced. Inputs are never modified. Symlink files are
+rejected, directory symlinks/junctions skipped, nonregular files rejected, and resolved
+file paths must remain beneath the input root. Do not mutate the dataset concurrently:
+portable path checks do not eliminate hostile filesystem replacement races. On Python
+3.11 Windows junction detection is limited by pathlib support; resolved file checks
+still enforce containment. Size bounds limit individual reads, not total batch memory.
+
+Parameters, credentials, expressions, and arbitrary descriptions are never exported.
+**Detailed `inventory.jsonl` reports are potentially sensitive.** Workflow names,
+node names, paths, node types and connection labels remain structural metadata and
+can contain personal information. These reports are not anonymized; restrict access
+and review/redact a copy before sharing. `summary.json` can also retain paths and
+node-type labels and requires review before sharing.
+Markdown includes only aggregate numeric metrics and limitations.
+
+## Reconciliation with research documents
+
+Existing architecture/research documents and roadmap are preserved. They propose a
+larger frozen operation catalog, early sandbox/import checks, benchmark authoring and
+compiler work. Current user-authorized Milestone 1 deliberately precedes those steps;
+no scientific result establishes the candidate IR architecture as superior. Existing
+architecture links to original-named companion files/diagrams are unresolved in this
+checkout. YAML configs remain planning examples; only the inventory JSON role catalog
+is loaded by this CLI. Next: review inventory outputs and provenance requirements,
+select n8n version and verified operation catalog, then authorize the next milestone.
+Numeric values overflowing finite Python float range are reported as invalid_json;
+this is a parser resource/representation limit, not a JSON syntax rule.
+
+## Milestone 1 review compatibility clarification
+
+Schema version remains 1; no fields or types were added or removed. Deliberate
+semantic correction: incomplete identifier sets now yield null instead of misleading
+true uniqueness, and repeated invalid empty identifiers no longer produce duplicate
+errors. Valid duplicates still yield false, even alongside missing identifiers.
+Normal workflow counts, hashes, graph data and duplicate grouping are unchanged.
+Traversal errors without a usable root-relative filename use `source_path: "."`
+and `discovery_errors: ["."]` as an unknown-location marker (also used for root
+directory errors). No absolute external path or exception message is exported.
+
+
+---
+
+## Milestone 1 report
+
+# Milestone 1 — local static inventory
+
+Implemented reader, structural validator, inventory aggregation, raw SHA-256 duplicate
+strategy extension point, deterministic output writers and module CLI. No data was
+downloaded, workflows executed, or models trained. No commits or pushes were made.
+Existing research-plan, architecture and roadmap edits were preserved.
+
+Baseline: 5 tests passed. Final verification on Python 3.12.10, pytest 8.4.2,
+Ruff 0.17.2: initial implementation **28 tests passed**; after targeted review fixes,
+**44 tests passed in 0.46s**, no warnings; Ruff lint and format checks passed
+(30 Python files already formatted).
+An intermediate test patched Path.open globally and caused an importlib metadata
+warning; the test now isolates tool-version lookup and the warning is resolved.
+
+Commands used (repository root, PowerShell):
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\ruff.exe check .
+.\.venv\Scripts\ruff.exe format --check .
+.\.venv\Scripts\python.exe -m builder.inventory --input tests/fixtures --output reports/inventory-demo --catalog configs/inventory-catalog.json
+```
+
+The synthetic CLI demonstration produced 2 scanned/parsed files, 0 structural-error
+files, 1 warning file, 2 distinct byte hashes, no exact duplicate groups, node-count
+distribution {1: 1, 3: 1}, 2 connections, 3 output slots (2 nonempty), and 1 unknown
+custom node instance. Manual Trigger appeared twice, Set once, custom.synthetic once.
+These are fixture observations, not real-dataset measurements or n8n compatibility
+claims. Outputs are ignored under reports/inventory-demo.
+
+Tests cover malformed/non-object JSON, absent nodes, empty input/workflows, broken
+source/destination references, duplicate IDs/names, malformed connection levels,
+nonnegative integer indices, fanout, multi-output/null branches, cycles, custom nodes,
+disabled nodes, annotations, identical-byte and different-serialization cases, bounded
+reads, simulated unreadable/unsafe paths and directory errors, credential/parameter
+exclusion, unchanged source bytes, repeatability, and CLI output-root protection.
+
+Full git diff --check flags pre-existing Markdown hard-break whitespace in the user's
+research/architecture edits. Those documents were not rewritten. No additional runtime
+dependencies were installed.
+
+See the Inventory contract section above for the complete v1 contract, safety boundaries and metric
+semantics. Main limits: no pinned n8n schema, import/execution/oracles, port compatibility,
+expression resolution, operation configuration checks, semantic deduplication, or
+concurrent hostile-filesystem isolation. JSON reports retain structural names/types
+and relative paths; review these before sharing. Batch results are held in memory.
+
+Proposed next milestone: agree on provenance/manifest requirements, select and verify
+the target n8n version and operation catalog, then authorize a small local provenance
+and quality review. External collection and execution require separate authorization.
+
+## Targeted code review follow-up
+
+Changed only structural identifier metadata, traversal-error handling, regression
+tests, and related documentation. Valid nonempty duplicates are distinguished from
+missing/invalid identifiers. Uniqueness is true for complete unique sets, false for
+established duplicates, otherwise null. Existing required-field errors are retained.
+Schema version 1 and field types remain unchanged; this deliberate semantic correction
+is detailed in the inventory contract. Empty arrays remain vacuously unique.
+
+Traversal errors with missing, external, relative-unusable, or parent-escaping
+filenames now use the documented `.` unknown-location marker and preserve batch
+processing without leaking exception messages or external paths. Normal relative
+error paths retain their existing representation.
+
+New regression coverage includes incomplete/invalid/duplicate identifiers,
+unavailable node arrays, traversal filename fallbacks with a surviving valid file,
+and sensitive structural labels retained in JSONL but excluded from Markdown.
+Parameters and credentials remain excluded. **Detailed inventory JSONL reports are
+potentially sensitive**: workflow names, node names, paths and connection labels can
+contain personal information. They are not anonymized; review before sharing.
+
+Full pytest and Ruff commands above were rerun. The CLI was also run with the same
+synthetic inputs/catalog and `--output reports/inventory-review`. SHA-256 comparisons
+against reports/inventory-demo confirmed all three output files were byte-identical.
+No datasets collected, n8n started, training implemented, or Git commits made.
+
+
+## Archived planning example: dataset.yaml
+
+```yaml
+# Example only; no collection is enabled or implemented.
+schema_version: 1
+target_n8n_version: null # TODO: select and record an exact version.
+paths:
+  raw: data/raw
+  manifests: data/manifests
+  cleaned: data/cleaned
+  paired: data/paired
+  splits: data/splits
+  gold: data/gold
+collection:
+  enabled: false
+  local_only: true
+  dry_run: true
+sources:
+  # Names reserve folders; source identities and permissions are unverified.
+  - id: n8nbuilder
+    path: data/raw/n8nbuilder
+    url: null # TODO: verify canonical source URL.
+    revision: null
+    license: null # TODO: verify license and permitted use before collection.
+    permitted_use: null
+    enabled: false
+  - id: zie619
+    path: data/raw/zie619
+    url: null
+    revision: null
+    license: null
+    permitted_use: null
+    enabled: false
+  - id: nusquama
+    path: data/raw/nusquama
+    url: null
+    revision: null
+    license: null
+    permitted_use: null
+    enabled: false
+provenance:
+  # Proposed fields for the next inventory milestone, not a manifest implementation.
+  required_fields:
+    - source_url
+    - source_id
+    - source_revision
+    - collected_at
+    - source_timestamp
+    - content_sha256
+    - license
+    - permitted_use
+    - description_origin
+
+```
+
+
+## Archived planning example: nodes.yaml
+
+```yaml
+# Candidate initial catalog, awaiting target-version compatibility review.
+schema_version: 1
+target_n8n_version: null # TODO: select exact n8n version.
+status: provisional
+nodes:
+  - type: n8n-nodes-base.manualTrigger
+    type_version: null # TODO: verify against the selected n8n release.
+    role: trigger
+  - type: n8n-nodes-base.set
+    type_version: null
+    role: transform
+  - type: n8n-nodes-base.httpRequest
+    type_version: null
+    role: action
+# Entries express intended initial coverage, not verified generation support.
+
+```
+
+
+## Archived planning example: evaluation.yaml
+
+```yaml
+# Proposed settings only; no evaluator is implemented.
+schema_version: 1
+target_n8n_version: null # TODO: select exact n8n version.
+random_seed: 42 # Initial reproducibility default, not an experimental finding.
+checks:
+  json_validity: true
+  graph_validity: true
+  importability: false # TODO: version-pinned isolated n8n environment.
+  execution_success: false
+  behavioral_correctness: false # TODO: independently specified behavior oracles.
+splits:
+  strategy: null # TODO: group exact/near duplicates and related variants.
+  train_fraction: null
+  validation_fraction: null
+  test_fraction: null
+benchmark:
+  path: data/gold
+  independent_verification_required: true
+  selection_policy: null # TODO: define before benchmark construction.
+
+```
+
+## Compact layout verification — 26 October 2026
+
+Implementation moved to src/builder/reader.py, validator.py and inventory.py. The
+Python import path and CLI are builder.inventory; distribution metadata remains
+lexaflow 0.1.0. Editable installation was refreshed. All 44 existing test cases are
+preserved across tests/test_reader.py, test_validator.py and test_inventory.py.
+Full pytest: 44 passed in 0.92s on Python 3.12.10. Ruff lint and formatting passed.
+Synthetic CLI command:
+
+```powershell
+.\.venv\Scripts\python.exe -m builder.inventory --input tests/fixtures --output reports/inventory-layout --catalog configs/inventory-catalog.json
+```
+
+All three generated files were byte-identical to the prior inventory-demo outputs.
+The old module path is intentionally removed; no schema or analysis rules changed.
+The new exploration notebook is unexecuted. Former planning YAML files are archived
+in this document; inventory-catalog.json is the active runtime configuration.

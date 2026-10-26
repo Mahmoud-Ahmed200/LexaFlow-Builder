@@ -1,4 +1,4 @@
-"""Run a local, static workflow inventory: python -m lexaflow.builder.data.inventory."""
+"""Run a local, static workflow inventory: python -m builder.inventory."""
 
 import argparse
 import json
@@ -7,8 +7,8 @@ from collections import Counter
 from importlib.metadata import version
 from pathlib import Path
 
-from lexaflow.builder.data.reader import read_files
-from lexaflow.builder.data.validators.structure import LIMITATIONS, validate
+from builder.reader import read_files
+from builder.validator import LIMITATIONS, validate
 
 
 def duplicate_key(record: dict, strategy: str = "raw_sha256") -> str | None:
