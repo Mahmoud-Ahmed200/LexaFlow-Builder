@@ -1,7 +1,6 @@
 """Milestone 2 local provenance and quality audit; no external collection."""
 
 import argparse
-import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -54,7 +53,8 @@ def audit(
                 "source_revision": source_revision,
                 "license": license_name,
                 "permitted_use": permitted_use,
-                "collected_at": timestamp,
+                "collected_at": None,
+                "audited_at": timestamp,
                 "content_sha256": digest,
                 "parse_status": status,
                 "structural_errors": errors,
